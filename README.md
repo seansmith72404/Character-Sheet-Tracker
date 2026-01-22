@@ -1,16 +1,42 @@
-# React + Vite
+# Capstone Project Documentation
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Setting Up 
+Make Sure Git is installed. You can do this by using git --version on Windows or git -v on linux
 
-Currently, two official plugins are available:
+When git is installed, navigate to the repository [here](https://github.com/seansmith72404/Character-Sheet-Tracker)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Copy the link to that repository, and then go to your terminal destination that you want to go to to put this project into. For example, mine is `~/Documents/Capstone/character-sheet-tracker`. If you navigate to `~/Documents/Capstone`, the directory will be created for you
 
-## React Compiler
+Inside of that terminal, type `git clone` and then copy the link that I put in the step above
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Navigate to that directory and then type `npm install`
 
-## Expanding the ESLint configuration
+Now type `npm run dev`. This will give you a localhost link to put into your browser. If you see something, you are good to start working
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Starting Coding
+
+Before making changes (very important), swap to a different branch. You can do this with `git checkout -b <branch name here>`
+
+Note: React will update in real time when the save button is pressed so you will not need to restart the website when making a change
+
+## When you are trying to save code and/or merge it to main branch
+When merging to main branch, type the following commands in this order:
+1. `git branch` - makes sure you're on your correct branch
+2. `git add .` - adds files to the commit that you might have created
+3. `git commit -a -m <insert commit message here>` - commits the changes
+4. `git push --set-upstream origin/<branch name>`. Note, if you've already pushed this branch before, you can simplify this to `git push`
+
+After doing this, tell us that your branch is created and the name of it so we can test it before we merge it into the main branch. You could alternatively set up a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) and then mention that you have a PR ready for one of us to test on and we'll merge it in once it looks good
+
+## When your main branch or one of your other branches are behind
+Run `git pull origin main` on the main branch
+
+
+
+
+
+
+
+
+
+
