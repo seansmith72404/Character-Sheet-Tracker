@@ -1,11 +1,21 @@
-import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+
+// Create a placeholder Dashboard component
+function Dashboard() {
+  return <h1>Character Sheet Dashboard</h1>;
+}
 
 function App() {
   return (
-    <div className="App">
-      <h1>Hello World!</h1>
-      <p>My new React project starts here.</p>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
   );
 }
 
