@@ -6,11 +6,23 @@ function Login() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // TODO: Add backend authentication logic here
-    console.log("Logging in with:", email, password);
-    navigate('/dashboard'); // Redirect to dashboard on success
+    
+    // FETCH from YOUR server
+    const response = await fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+        navigate('/dashboard');
+    } else {
+        alert(data.error); // Or set an error state
+    }
   };
 
   return (
