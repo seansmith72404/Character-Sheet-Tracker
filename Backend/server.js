@@ -2,33 +2,71 @@ import express from 'express';
 import cors from 'cors';
 import pkg from 'pg';
 import bcrypt from 'bcryptjs';
+import 'dotenv/config';
+// --- ADDED FOR SOCKET.IO ---
+import { createServer } from 'http'; 
+import { Server } from 'socket.io'; 
+// ---------------------------
+
 const { Pool } = pkg;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. NEON CONNECTION STRING (Get this from your Neon Dashboard)
-// It looks like: postgres://user:pass@ep-cool-site.us-east-2.aws.neon.tech/neondb?sslmode=require
-const connectionString = 'postgresql://neondb_owner:npg_VB31zvbwAuSp@ep-nameless-sun-ai6wxnfb-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+// --- ADDED FOR SOCKET.IO ---
+// Wrap the Express app in a standard HTTP server to allow WebSockets
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173", // Allow your React frontend to connect
+    methods: ["GET", "POST"]
+  }
+});
 
+// The Lobby Logic
+io.on('connection', (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  // When a user clicks "Create Lobby"
+  socket.on('create_lobby', () => {
+    const roomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+    socket.join(roomCode); 
+    socket.emit('lobby_created', roomCode); 
+    console.log(`Lobby created: ${roomCode}`);
+  });
+
+  // When a user types in a code and clicks "Join Lobby"
+  socket.on('join_lobby', (roomCode) => {
+    socket.join(roomCode); 
+    io.to(roomCode).emit('room_update', `A new player joined lobby ${roomCode}!`);
+    console.log(`User ${socket.id} joined lobby: ${roomCode}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+});
+// ---------------------------
+
+// 1. NEON CONNECTION STRING (Get this from your Neon Dashboard)
+const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({
   connectionString,
   ssl: true,
 });
 
 // 2. CREATE TABLE (Run this once to set up your DB)
-// You can also run this SQL directly in the Neon SQL Editor
 app.get('/setup-db', async (req, res) => {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS user_accounts (
+      CREATE TABLE IF NOT EXISTS "tblUsers" (
         id SERIAL PRIMARY KEY,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL
+        "UserName" VARCHAR(255) UNIQUE NOT NULL,
+        "UserPassword" VARCHAR(255) NOT NULL
       );
     `);
-    res.send("Database table created!");
+    res.send("tblUsers database table created!");
   } catch (err) {
     console.error(err);
     res.status(500).send(err.message);
@@ -56,7 +94,6 @@ app.post('/api/signup', async (req, res) => {
     }
 });
 
-// 4. LOGIN ROUTE
 // 4. LOGIN ROUTE (Updated for tblUsers)
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
@@ -87,6 +124,8 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+// --- CHANGED FOR SOCKET.IO ---
+// We now listen on the httpServer instead of the express app
+httpServer.listen(3000, () => {
+  console.log('Server & WebSockets running on http://localhost:3000');
 });
