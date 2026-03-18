@@ -20,7 +20,7 @@ function Layout() {
           </div>
         </div>
         <div className="navbar-center">
-          <a className="btn btn-ghost text-xl">LAIRMASTER</a>
+          <a className="text-3xl font-bold">LAIRMASTER</a>
         </div>
         <div className="navbar-end">
           <button className="btn btn-ghost btn-circle">

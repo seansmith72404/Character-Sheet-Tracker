@@ -72,9 +72,11 @@ function Signup() {
                 />
               </div>
               {/* submit button */}
-              <button className="btn btn-primary w-full">
-                Sign Up
-              </button>
+              <form onSubmit={handleSignup}>
+                <button type="submit" className="btn btn-primary w-full">
+                  Sign Up
+                </button>
+              </form>
             </form>
             {/* divider */}
             <div className="divider">OR</div>

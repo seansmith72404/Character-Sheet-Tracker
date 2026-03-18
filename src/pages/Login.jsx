@@ -26,6 +26,63 @@ function Login() {
   };
 
   return (
+    <>
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <div className="card w-full max-w-md shadow-xl bg-base-100">
+          <div className="card-body p-8 space-y-4">
+            <h2 className="text-lg font-bold text-center">Log Into Account</h2>
+            {/*handle the actual sign-up part*/}
+            <form onSubmit={handleLogin} className="space-y-4">
+              {/* email address */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Email</span>
+                </label>
+                <input
+                  type="email"
+                  placeholder="yourEmail@email.com"
+                  className="input input-bordered"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              {/* password */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Password</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className="input input-bordered"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              {/* submit button */}
+              <button className="btn btn-primary w-full">
+                Log in
+              </button>
+            </form>
+            {/* divider */}
+            <div className="divider">OR</div>
+            {/* link to login page */}
+            <p className="text-center">
+              Don't have an account?{" "}
+              <Link to="/signup" className="link text-primary">
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+
+  /*
+  return (
     <div className="auth-container">
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
@@ -54,6 +111,7 @@ function Login() {
       </p>
     </div>
   );
+  */
 }
 
 export default Login;
