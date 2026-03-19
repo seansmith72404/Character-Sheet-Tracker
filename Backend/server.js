@@ -124,6 +124,129 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// Initialize a dedicated schema and two tables for character fields and values
+// Initialize a dedicated schema and three normalized tables for characters, fields, and values
+async function initCharacterSchema() {
+    const schemaName = 'character_schema';
+    try {
+        await pool.query(`CREATE SCHEMA IF NOT EXISTS "${schemaName}";`);
+
+        // 1. Core characters table to generate and store CharacterID
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS "${schemaName}"."tblCharacters" (
+                "id" SERIAL PRIMARY KEY,
+                "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        // 2. Field Definitions (Names) table linking to Character
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS "${schemaName}"."tblCharacterFields" (
+                "id" SERIAL PRIMARY KEY,
+                "character_id" INTEGER REFERENCES "${schemaName}"."tblCharacters"("id") ON DELETE CASCADE,
+                "field_index" INTEGER NOT NULL,
+                "field_name" VARCHAR(255) NOT NULL,
+                UNIQUE("character_id", "field_index")
+            );
+        `);
+
+        // 3. Field Values table linking to Character
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS "${schemaName}"."tblCharacterFieldValues" (
+                "id" SERIAL PRIMARY KEY,
+                "character_id" INTEGER REFERENCES "${schemaName}"."tblCharacters"("id") ON DELETE CASCADE,
+                "field_index" INTEGER NOT NULL,
+                "field_value" TEXT NOT NULL,
+                UNIQUE("character_id", "field_index")
+            );
+        `);
+
+        console.log(`Character schema and normalized tables ensured in schema: ${schemaName}`);
+    } catch (err) {
+        console.error('Error initializing character schema/tables:', err.message || err);
+    }
+}
+initCharacterSchema();
+
+// Create character row (server-generated integer id if none provided)
+app.post('/api/characters', async (req, res) => {
+    let { characterId } = req.body;
+    try {
+        if (characterId === undefined || characterId === null || characterId === '') {
+            // create new character row to generate id
+            const result = await pool.query('INSERT INTO "character_schema"."tblCharacters" DEFAULT VALUES RETURNING "id"');
+            const newId = result.rows[0].id;
+            return res.json({ success: true, characterId: newId });
+        }
+
+        const numericId = Number(characterId);
+        if (!Number.isInteger(numericId) || numericId <= 0) return res.status(400).json({ error: 'characterId must be a positive integer or omitted' });
+
+        // allow client-provided id: insert into tblCharacters if not exists
+        await pool.query('INSERT INTO "character_schema"."tblCharacters" ("id") VALUES ($1) ON CONFLICT ("id") DO NOTHING', [numericId]);
+        
+        res.json({ success: true, characterId: numericId });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Save Character Fields (Names)
+app.post('/api/character-fields', async (req, res) => {
+    const { characterId, fields } = req.body;
+    try {
+        const numericId = Number(characterId);
+        if (!Number.isInteger(numericId) || numericId <= 0) return res.status(400).json({ error: 'Invalid characterId' });
+
+        // fields object looks like: { "Field1": "Weight", "Field2": "Height" }
+        for (const [key, name] of Object.entries(fields)) {
+            const match = key.match(/^Field(\d+)$/);
+            if (match) {
+                const fieldIndex = parseInt(match[1], 10);
+                await pool.query(
+                    `INSERT INTO "character_schema"."tblCharacterFields" ("character_id", "field_index", "field_name") 
+                     VALUES ($1, $2, $3) 
+                     ON CONFLICT ("character_id", "field_index") 
+                     DO UPDATE SET "field_name" = EXCLUDED."field_name"`,
+                    [numericId, fieldIndex, name]
+                );
+            }
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Save Character Field Values
+app.post('/api/character-values', async (req, res) => {
+    const { characterId, values } = req.body;
+    try {
+        const numericId = Number(characterId);
+        if (!Number.isInteger(numericId) || numericId <= 0) return res.status(400).json({ error: 'Invalid characterId' });
+
+        // values object looks like: { "Value1": "85 pounds", "Value2": "5'10\"" }
+        for (const [key, value] of Object.entries(values)) {
+            const match = key.match(/^Value(\d+)$/);
+            if (match) {
+                const fieldIndex = parseInt(match[1], 10);
+                await pool.query(
+                    `INSERT INTO "character_schema"."tblCharacterFieldValues" ("character_id", "field_index", "field_value") 
+                     VALUES ($1, $2, $3) 
+                     ON CONFLICT ("character_id", "field_index") 
+                     DO UPDATE SET "field_value" = EXCLUDED."field_value"`,
+                    [numericId, fieldIndex, value]
+                );
+            }
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
 // --- CHANGED FOR SOCKET.IO ---
 // We now listen on the httpServer instead of the express app
 httpServer.listen(3000, () => {
