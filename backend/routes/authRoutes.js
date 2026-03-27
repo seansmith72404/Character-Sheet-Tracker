@@ -6,7 +6,7 @@ const db = require('../config/db');
 const router = express.Router();
 
 // --- REGISTER ROUTE ---
-router.post('/register', async (req, res) => {
+router.post('/signup', async (req, res) => {
     const { email, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);

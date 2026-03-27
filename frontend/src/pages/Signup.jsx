@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -14,9 +16,7 @@ function Signup() {
       // 1. Send data to YOUR local server instead of Supabase
       const response = await fetch("http://localhost:3000/api/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json",},
         body: JSON.stringify({ email, password }),
       });
 
@@ -26,6 +26,7 @@ function Signup() {
       if (response.ok) {
         setMessage("Success! Account created in Neon database.");
         console.log("User created:", data);
+        navigate("/dashboard");
       } else {
         setMessage(`Error: ${data.error || "Registration failed"}`);
       }
@@ -72,11 +73,9 @@ function Signup() {
                 />
               </div>
               {/* submit button */}
-              <form onSubmit={handleSignup}>
-                <button type="submit" className="btn btn-primary w-full">
-                  Sign Up
-                </button>
-              </form>
+              <button type="submit" className="btn btn-primary w-full">
+                Sign Up
+              </button>
             </form>
             {/* divider */}
             <div className="divider">OR</div>
@@ -91,36 +90,6 @@ function Signup() {
         </div>
       </div>
     </>
-    /*
-    <div className="auth-container">
-      <h2>Create Account</h2>
-      <form onSubmit={handleSignup}>
-        <div>
-          <label>Email:</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
-          />
-        </div>
-        <button type="submit">Sign Up</button>
-      </form>
-      {message && <p>{message}</p>}
-      <p>
-        Already have an account? <Link to="/">Login</Link>
-      </p>
-    </div>
-    */
   );
 }
 
