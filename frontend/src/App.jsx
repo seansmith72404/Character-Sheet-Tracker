@@ -18,6 +18,7 @@ function App() {
         </Route>
         {/* WILL BE A LOGGED IN LAYOUT */}  
         <Route path="/lobby" element={<Lobby />} />
+        <Route path="/lobby/:roomId" element={<Lobby />} />
       </Routes>
     </Router>
   );

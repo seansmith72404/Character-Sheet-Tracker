@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 function Dashboard() {
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif', textAlign: 'center' }}>
-      <h1>Character Sheet Dashboard</h1>
+      <h1>LAIRMASTER Dashboard</h1>
       <p>Welcome to your campaign hub! Select an option below to get started.</p>
       
       <div style={{ 

@@ -19,9 +19,11 @@ function Login() {
     const data = await response.json();
 
     if (data.success) {
+        // Store the damn token in the browser
+        localStorage.setItem('token', data.token);
         navigate('/dashboard');
     } else {
-        alert(data.error); // Or set an error state
+        alert(data.error); 
     }
   };
 
@@ -31,7 +33,6 @@ function Login() {
         <div className="card w-full max-w-md shadow-xl bg-base-100">
           <div className="card-body p-8 space-y-4">
             <h2 className="text-lg font-bold text-center">Log Into Account</h2>
-            {/*handle the actual sign-up part*/}
             <form onSubmit={handleLogin} className="space-y-4">
               {/* email address */}
               <div className="form-control">
@@ -68,7 +69,7 @@ function Login() {
             </form>
             {/* divider */}
             <div className="divider">OR</div>
-            {/* link to login page */}
+            {/* link to signup page */}
             <p className="text-center">
               Don't have an account?{" "}
               <Link to="/signup" className="link text-primary">
