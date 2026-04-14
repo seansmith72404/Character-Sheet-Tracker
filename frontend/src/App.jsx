@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Lobby from './pages/Lobby';
 import Dashboard from './pages/Dashboard'; 
+import CharacterCreation from './pages/CharacterCreation';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         {/* WILL BE A LOGGED IN LAYOUT */}  
         <Route path="/lobby" element={<Lobby />} />
         <Route path="/lobby/:roomId" element={<Lobby />} />
+        <Route path="/character-creation" element={<CharacterCreation />} />
       </Routes>
     </Router>
   );

@@ -177,6 +177,66 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// JWT verification middleware for Express
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (token == null) return res.status(401).json({ error: "No token provided" });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: "Invalid token" });
+    req.user = user;
+    next();
+  });
+};
+
+app.post("/api/characters", authenticateToken, async (req, res) => {
+  const { name, fields } = req.body;
+  const userId = req.user.id;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Insert character
+    const charResult = await client.query(
+      'INSERT INTO character_schema."tblCharacters" (user_id, name, created_at) VALUES ($1, $2, NOW()) RETURNING id',
+      [userId, name || 'Unnamed Character']
+    );
+    const characterId = charResult.rows[0].id;
+
+    // Insert fields
+    if (fields && Array.isArray(fields)) {
+      for (let i = 0; i < fields.length; i++) {
+          const fieldName = fields[i].name || `Field ${i+1}`;
+          const fieldValue = fields[i].value || '';
+
+          // Insert into tblCharacterFields
+          await client.query(
+             'INSERT INTO character_schema."tblCharacterFields" (character_id, field_index, field_name) VALUES ($1, $2, $3)',
+             [characterId, i, fieldName]
+          );
+
+          // Insert into tblCharacterFieldValues
+          await client.query(
+             'INSERT INTO character_schema."tblCharacterFieldValues" (character_id, field_index, field_value) VALUES ($1, $2, $3)',
+             [characterId, i, fieldValue]
+          );
+      }
+    }
+    
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, characterId });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    client.release();
+  }
+});
+
 httpServer.listen(3000, () => {
   console.log("Server & WebSockets running on http://localhost:3000");
 });
