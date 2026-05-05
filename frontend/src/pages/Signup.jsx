@@ -24,6 +24,7 @@ function Signup() {
 
       // 2. Handle the result from your server
       if (response.ok) {
+        localStorage.setItem('token', data.token);
         setMessage("Success! Account created in Neon database.");
         console.log("User created:", data);
         navigate("/dashboard");
