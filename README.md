@@ -9,9 +9,15 @@ Copy the link to that repository, and then go to your terminal destination that 
 
 Inside of that terminal, type `git clone` and then copy the link that I put in the step above
 
-Navigate to that directory and then type `npm install`
+Navigate to the frontend directory and then type `npm install`
 
 Now type `npm run dev`. This will give you a localhost link to put into your browser. If you see something, you are good to start working
+
+Open up a new terminal
+
+Navigate to the backend directory and then type `npm install`
+
+Type `npm start` to set your backend up
 
 ## Starting Coding
 
